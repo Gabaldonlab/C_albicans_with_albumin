@@ -1,3 +1,5 @@
+### Load all necessary libraries. For package versions see the main text of the paper. 
+### If you don't have the packages installed, first you will need to install them in R. To do this, follow the instructions of each package in the respective help/manual page.
 library(DESeq2)
 library("RColorBrewer")
 library(reshape2)
@@ -12,7 +14,8 @@ library(clusterProfiler)
 library(org.Hs.eg.db)
 library(dplyr)
 
-
+### Load the read count data. Change the path of the yeast_data.tsv to where it is located in your file system.
+### Also, in the downstream code, change the paths of the output files. 
 yeast<- read.table("~/Dropbox (Personal)/calb_albumin/yeast_data.tsv", sep = "\t", check.names = F)
 
 ### PCA plot for all data
@@ -97,9 +100,7 @@ res_24h_host_alb_vs_nonalb_separate<-results(dds_alb, contrast = c("Group","24h_
 
 
 
-
-
-###
+### Produce volcano plots
 
 library(ggbreak)
 
@@ -154,6 +155,8 @@ volcano_24h <- plot_volcano(res_24h_host_alb_vs_nonalb_separate, "24 h")
 
 
 # Arrange plots side by side
+# Change the output paths here to match your filesystem
+                                        
 library(gridExtra)
 grid_plot <- arrangeGrob(volcano_0.5h, volcano_3h,volcano_24h, ncol = 3)
 ggsave("~/Dropbox/calb_albumin/fixed_results_050524/volcano_plots.png",grid_plot, device = "png",units="in", width=20, height=6, dpi=600) 
@@ -162,11 +165,7 @@ ggsave("~/Dropbox/calb_albumin/fixed_results_050524/volcano_plots.pdf",grid_plot
 
 
 
-
-
-
-
-############## Excel
+### Generate Excel files
 
 wb_DE <- createWorkbook("calb_albumin")
 header<-c("gene", "baseMean","log2FoldChange","lfcSE","stat","pvalue","padj")
@@ -201,11 +200,14 @@ for (file in file_names_sep){
   writeData(wb_DE, sheet_name, fung_with_gene_descr,keepNA = T)
 }
 
-#saveWorkbook(wb_DE, "~/Dropbox/calb_albumin/fixed_results_050524/DE_data_with_ORF.xlsx", overwrite = TRUE)
+# Change the output paths here to match your filesystem
+saveWorkbook(wb_DE, "~/Dropbox/calb_albumin/fixed_results_050524/DE_data_with_ORF.xlsx", overwrite = TRUE)
 
+#######################################
+########## GO TERM analysis ###########
+#######################################
 
-########## GO TERMS
-
+                                        
 ### FUNGAL GO TERMS
 ### Finding MF,BP and CC terms
 all_go_tems<-as.data.frame(GOTERM)
@@ -235,13 +237,6 @@ CC_universe<-calb_go[calb_go$V1 %in% CC_terms,]
 
 
 
-
-
-
-
-
-#for (res in file_names_sep){
-
 for (res in c("res_3h_host_alb_vs_nonalb_separate","res_24h_host_alb_vs_nonalb_separate")){
   df <- get(res)
   
@@ -258,6 +253,7 @@ for (res in c("res_3h_host_alb_vs_nonalb_separate","res_24h_host_alb_vs_nonalb_s
       
       if (!is.null(ego)){
         p<-dotplot(ego,showCategory = 15)
+        # Change the output paths here to match your filesystem
         ggplot2::ggsave(sprintf("~/Dropbox/calb_albumin/fixed_results_050524/%s_%s_BP.png",res,reg),
                         units="in", width=10, heigh=15, dpi=600)
         write.table(ego,sprintf("~/Dropbox/calb_albumin/fixed_results_050524/%s_%s_BP.txt",res,reg), sep="\t")
@@ -308,8 +304,6 @@ to_hack_up@compareClusterResult <- all_up
 simpl_up<-  simplify(to_hack_up, cutoff=0.7, by="p.adjust", select_fun=min)
 
 
-
-# Assuming `simpl_up` is your compareClusterResult object
 # Extract the compareClusterResult data frame
 simpl_up_data <- simpl_up@compareClusterResult
 
@@ -335,7 +329,7 @@ simpl_up_modified@compareClusterResult <- simpl_up_data
       strip.text.x = element_blank()
 
     )
-  
+  # Change the output paths here to match your filesystem
   ggplot2::ggsave("~/Dropbox/calb_albumin/fixed_results_050524/FIG_3C_composite_GO_UP.png", 
                   plot = p, units = "in", width = 15, height = 8, dpi = 600)
   ggplot2::ggsave("~/Dropbox/calb_albumin/fixed_results_050524/FIG_3C_composite_GO_UP.pdf", 
@@ -373,8 +367,6 @@ simpl_up_modified@compareClusterResult <- simpl_up_data
   
   simpl_down<-  simplify(to_hack_down, cutoff=0.7, by="p.adjust", select_fun=min)
   
-  
-  # Assuming `simpl_up` is your compareClusterResult object
   # Extract the compareClusterResult data frame
   simpl_down_data <- simpl_down@compareClusterResult
   
@@ -402,7 +394,8 @@ simpl_up_modified@compareClusterResult <- simpl_up_data
         strip.text.x = element_blank()
         
       )
-    
+
+    # Change the output paths here to match your filesystem
     ggplot2::ggsave("~/Dropbox/calb_albumin/fixed_results_050524/FIG_3D_composite_GO_DOWN.png", 
                     plot = p, units = "in", width = 10, height = 8, dpi = 600)
     ggplot2::ggsave("~/Dropbox/calb_albumin/fixed_results_050524/FIG_3D_composite_GO_DOWN.pdf", 
